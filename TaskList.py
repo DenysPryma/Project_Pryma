@@ -5,8 +5,10 @@ class TaskList:
     def add_task(self, task):
         self.tasks.append(task)
 
-    def remove_task(self, task):
-        self.tasks.remove(task)
+    def remove_task(self, index):
+        return self.tasks.pop(index)
 
-    def complete_task(self, task):
+    def complete_task(self, index):
+        task = self.tasks[index]
         task.completed = True
+        return task

@@ -28,38 +28,31 @@ class TaskManager:
 
         new_task = Task(description, due_date, priority)
         
-    
         self.task_lists["active"].add_task(new_task)
+        self.task_lists["all"].add_task(new_task)
         self.save_tasks()
 
     def remove_task(self, index):
         try:
-            task = self.task_lists["active"].tasks.pop(index)
+            task = self.task_lists["active"].remove_task(index)
             self.task_lists["all"].tasks.remove(task)
             print("Завдання успішно видалено.")
             self.save_tasks()
         except IndexError:
             print("Неправильний індекс завдання.")
+        except ValueError:
+            print("Помилка: Завдання не знайдено в списку.")
 
     def complete_task(self, index):
         try:
-            tasks = self.task_lists["active"].tasks
-            tasks.sort(key=lambda x: x.priority)
-            print(f"{'Індекс':<6} {'Опис':<30} {'По даті':<12} {'Пріоритет':<10} {'Статус':<10}")
-            for i, task in enumerate(tasks):
-                print(f"{i:<6} {task.description:<30} {task.due_date:<12} {task.priority:<10} {'Completed' if task.completed else 'Active'}")
-                task = tasks[index]
-                index = int(input("Введіть індекс завдання для завершення: "))
-
-            if 0 <= index < len(tasks): 
-                task.completed = True
-                self.task_lists["active"].tasks.remove(task)
-                self.task_lists["completed"].tasks.append(task)
+            task_to_complete = self.task_lists["active"].complete_task(index)
+            if task_to_complete:
+                self.task_lists["completed"].add_task(task_to_complete)
                 print("Завдання успішно завершено.")
                 self.save_tasks()
             else:
                 print("Неправильний індекс завдання.")
-        except ValueError:
+        except IndexError:
             print("Неправильний індекс завдання.")
 
     def view_tasks(self, status="all", sort_by="date"):
@@ -116,25 +109,14 @@ class TaskManager:
         self.save_tasks()
 
     def save_tasks(self):
-        with open("tasks.txt", "w", encoding="utf-8") as file:
-            for task_list in self.task_lists.values():
-                for task in task_list.tasks:
-                    file.write(f"{task.description}|{task.due_date}|{task.priority}|{task.completed}\n")
+        all_tasks = []
+        for task_list in self.task_lists.values():
+            for task in task_list.tasks:
+                all_tasks.append((task.description, task.due_date, task.priority, task.completed))
 
     def load_tasks(self):
-        try:
-            with open("tasks.txt", "r", encoding="utf-8") as file:
-                for line in file:
-                    description, due_date, priority, completed = line.strip().split("|")
-                    new_task = Task(description, due_date, int(priority))
-                    new_task.completed = completed == "True"
-                    self.task_lists["all"].add_task(new_task)
-                    if new_task.completed:
-                        self.task_lists["completed"].add_task(new_task)
-                    else:
-                        self.task_lists["active"].add_task(new_task)
-        except FileNotFoundError:
-            pass
+        return
+    
 
     def get_task_keys(self):
         task_keys = set()
