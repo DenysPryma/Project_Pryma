@@ -11,7 +11,8 @@ def main():
         print("3. Завершити завдання")
         print("4. Переглянути завдання")
         print("5. Оновити інформацію про завдання")
-        print("6. Вийти з програми")
+        print("6. Переглянути видалені завдання")
+        print("7. Вийти з програми")
 
         choice = input("Введіть ваш вибір: ")
 
@@ -42,6 +43,8 @@ def main():
                 priority = int(priority)
             manager.update_task(index, description, due_date, priority)
         elif choice == "6":
+            manager.view_deleted_tasks()
+        elif choice == "7":
             print("До побачення!")
             break
         else:

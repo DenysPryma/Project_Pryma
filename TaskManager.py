@@ -5,7 +5,13 @@ from TaskList import TaskList
 class TaskManager:
     def __init__(self):
         self.task_lists = {"all": TaskList(), "completed": TaskList(), "active": TaskList()}
+        self.deleted_tasks = TaskList()
         self.load_tasks()
+
+    def view_deleted_tasks(self):
+        print("Список видалених завдань:")
+        for i, task in enumerate(self.deleted_tasks.tasks):
+            print(f"{i}: {task.description}")
 
     def add_task(self, description, due_date, priority):
         task_key = f"{description}|{due_date}|{priority}"
@@ -36,6 +42,7 @@ class TaskManager:
         try:
             task = self.task_lists["active"].remove_task(index)
             self.task_lists["all"].tasks.remove(task)
+            self.deleted_tasks.add_task(task)
             print("Завдання успішно видалено.")
             self.save_tasks()
         except IndexError:
@@ -72,9 +79,13 @@ class TaskManager:
         elif sort_by == "2":
             tasks.sort(key=lambda x: x.priority)
 
-        print(f"{'Індекс':<6} {'Опис':<30} {'Дата завершення':<12} {'Пріоритет':<10} {'Статус':<10}")
+        # print('Індекс\tОпис\t\t\t\t\t\t\tДата завершення\t\tПріоритет\tСтатус')
+        # for i, task in enumerate(tasks):
+        #     print(f"{i}\t{task.description}\t\t\t\t\t\t{task.due_date}\t\t{task.priority}\t\t{'Завершено' if task.completed else 'Активне'}")
+
+        print(f"{'Індекс':<6} {'Опис':<50} {'Дата завершення':<20} {'Пріоритет':<10} {'Статус':<10}")
         for i, task in enumerate(tasks):
-            print(f"{i:<6} {task.description:<30} {task.due_date:<12} {task.priority:<10} {'Завершено' if task.completed else 'Активне'}")
+            print(f"{i:<6} {task.description:<50} {task.due_date:<20} {task.priority:<10} {'Завершено' if task.completed else 'Активне'}")
 
     def is_valid_date(self, date_string):
         try:
@@ -98,7 +109,7 @@ class TaskManager:
             else:
                 print("Неправильний формат дати. Будь ласка, використовуйте формат РРРР-ММ-ДД.")
                 return
-        if priority is not None:
+        if priority is not None and priority != '':
             if 1 <= priority <= 5:
                 task.priority = priority
             else:
